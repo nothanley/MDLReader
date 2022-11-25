@@ -4,6 +4,7 @@
 #include <winsock.h>
 #include "MdlSubObj.h"
 #include "BinaryUtils.h"
+#include "MBfD_RGBA.h"
 #pragma comment(lib, "Ws2_32.lib")
 using namespace std;
 
@@ -245,15 +246,29 @@ private:
 			
 			//iter over current model's subdata
 			for (int i = 0; i < modelDataSets; i++) {
-				int dataProperty;
-				int dataFormat;
-				int dataType;
+				string dataProperty;
+				string dataFormat;
+				string dataType;
+				DWORD type;
 
+				//gather dataSet properties
 				block.seekp(int(block.tellp()) + 12);
-				block.read((char*)&dataProperty, sizeof(SHORT));
-				block.read((char*)&dataFormat, sizeof(SHORT));
-				block.read((char*)&dataType, sizeof(DWORD));
+				block.read((char*)&type, sizeof(SHORT));
+				dataProperty = stringTable[type];
 
+				block.read((char*)&type, sizeof(SHORT));
+				dataFormat = stringTable[type];
+
+				block.read((char*)&type, sizeof(DWORD));
+				dataType = stringTable[type];
+
+
+				//get vector set from data block
+				int filePos = block.tellp();
+
+				char* dataBuffer;
+				block.read(dataBuffer, 4);
+				MBfD_RGBA::convertBinaryDataSet( )
 
 			}
 
