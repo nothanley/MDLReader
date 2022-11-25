@@ -3,7 +3,6 @@
 #include <windows.h> 
 #include <winsock.h>
 #include "MdlSubObj.h"
-#include "BinaryUtils.h"
 #include "MBfD_RGBA.h"
 #pragma comment(lib, "Ws2_32.lib")
 using namespace std;
@@ -15,7 +14,7 @@ class MDLReader {
 	int modelCount;
 	int boneCount;
 	std::filebuf* fileBuffer = new std::filebuf();
-	std::vector<string> stringTable;
+	std::vector<string> stringTable = {};
 	std::vector<string> materialTable;
 	std::vector<MdlSubObj> subModels;
 	std::vector<float> mainRoot;
@@ -224,6 +223,8 @@ private:
 		std::iostream block(fileBuffer);
 		block.seekp(blockPos);
 		block.read((char*)&models, sizeof(DWORD));
+		// for some reason we have to redeclare to a dummy stringTable
+		std::vector<string> mainText = this->stringTable; 
 
 		for (int i = 0; i < 1; i++) {
 
@@ -240,37 +241,49 @@ private:
 			block.read((char*)&modelFlagB, sizeof(SHORT));
 
 			//disregard block hash
-			block.seekp( int(block.tellp()) + 28);
+			block.seekp(int(block.tellp()) + 28);
 			block.read((char*)&meshVerts, sizeof(DWORD));
 			block.read((char*)&modelDataSets, sizeof(DWORD));
 			
 			//iter over current model's subdata
-			for (int i = 0; i < modelDataSets; i++) {
+			for (int k = 0; k < modelDataSets; k++) {
 				string dataProperty;
 				string dataFormat;
 				string dataType;
 				DWORD type;
-
-				//gather dataSet properties
-				block.seekp(int(block.tellp()) + 12);
-				block.read((char*)&type, sizeof(SHORT));
-				dataProperty = stringTable[type];
-
-				block.read((char*)&type, sizeof(SHORT));
-				dataFormat = stringTable[type];
-
-				block.read((char*)&type, sizeof(DWORD));
-				dataType = stringTable[type];
-
-
-				//get vector set from data block
+				SHORT property;
 				int filePos = block.tellp();
 
-				char* dataBuffer;
-				block.read(dataBuffer, 4);
-				MBfD_RGBA::convertBinaryDataSet( )
+				//gather dataSet properties
+				block.seekp(filePos + 12);
+				block.read((char*)&property, sizeof(SHORT));
+				dataProperty = mainText[property];
 
+				block.read((char*)&property, sizeof(SHORT));
+				dataFormat = mainText[property];
+
+				block.read((char*)&type, sizeof(DWORD));
+				dataType = mainText[type];
+
+				//check alignment
+				filePos = BinaryUtils::roundUp(block.tellp(),4);
+				block.seekp(filePos);
+
+				//get vector set from data block
+				char dataBuffer;
+				u_long size = MBfD_RGBA::getDataSetSize(meshVerts, dataFormat);
+				block.read(&dataBuffer, size);
+
+				std::vector<float> rawData 
+					= MBfD_RGBA::convertBinaryDataSet(&dataBuffer, meshVerts, 
+						dataType, dataFormat);
+
+				//do-something with data
+				block.seekp(filePos + MBfD_RGBA::getDataSetSize(meshVerts, dataFormat));
+				cout << dataProperty << endl;
 			}
+
+
 
 
 		}

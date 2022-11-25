@@ -13,6 +13,18 @@ public:
         return s.str();
     }
 
+    static int roundUp( int numToRound, int multiple) {
+        int remainder;
+
+        if (multiple == 0)
+            return numToRound;
+        remainder = numToRound % multiple;
+        if (remainder == 0)
+            return numToRound;
+        
+        return (numToRound + multiple - remainder);
+    }
+
     static constexpr unsigned int hash(const char* s, int off = 0) {
         return !s[off] ? 5381 : (hash(s, off + 1) * 33) ^ s[off];
     }
