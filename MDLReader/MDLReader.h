@@ -49,14 +49,5 @@ public:
 	}
 
 
-	// void getDummy() {
-	//}
-
-	//
-
-	//int getNum() {
-	//	return randomNum;
-	//}
-
 
 };
