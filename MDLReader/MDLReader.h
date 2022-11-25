@@ -226,7 +226,11 @@ private:
 		// for some reason we have to redeclare to a dummy stringTable
 		std::vector<string> mainText = this->stringTable; 
 
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < models; i++) {
+
+			if (i > 0) {
+				std::cout << i << endl;
+			}
 
 			int modelID;
 			int modelFlagA;
@@ -236,7 +240,7 @@ private:
 			int modelDataSets;
 			string modelName;
 
-			block.read((char*)&modelName, sizeof(DWORD));
+			block.read((char*)&modelID, sizeof(DWORD));
 			block.read((char*)&modelFlagA, sizeof(DWORD));
 			block.read((char*)&modelFlagB, sizeof(SHORT));
 
@@ -244,7 +248,10 @@ private:
 			block.seekp(int(block.tellp()) + 28);
 			block.read((char*)&meshVerts, sizeof(DWORD));
 			block.read((char*)&modelDataSets, sizeof(DWORD));
-			
+
+
+			modelName = mainText[modelID];
+			std::cout << modelName << endl;
 			//iter over current model's subdata
 			for (int k = 0; k < modelDataSets; k++) {
 				string dataProperty;
@@ -256,13 +263,13 @@ private:
 
 				//gather dataSet properties
 				block.seekp(filePos + 12);
-				block.read((char*)&property, sizeof(SHORT));
+				block.read((char*)&property, 2);
 				dataProperty = mainText[property];
 
-				block.read((char*)&property, sizeof(SHORT));
+				block.read((char*)&property, 2);
 				dataFormat = mainText[property];
 
-				block.read((char*)&type, sizeof(DWORD));
+				block.read((char*)&type, 4);
 				dataType = mainText[type];
 
 				//check alignment
@@ -270,13 +277,14 @@ private:
 				block.seekp(filePos);
 
 				//get vector set from data block
-				char dataBuffer;
-				u_long size = MBfD_RGBA::getDataSetSize(meshVerts, dataFormat);
-				block.read(&dataBuffer, size);
+				int size = MBfD_RGBA::getDataSetSize(meshVerts, dataFormat);
+				char* dataBuffer = (char*)malloc(size);
+				block.read(dataBuffer, std::streamsize(size) );
 
 				std::vector<float> rawData 
-					= MBfD_RGBA::convertBinaryDataSet(&dataBuffer, meshVerts, 
+					= MBfD_RGBA::convertBinaryDataSet(dataBuffer, meshVerts,
 						dataType, dataFormat);
+				delete [] dataBuffer;
 
 				//do-something with data
 				block.seekp(filePos + MBfD_RGBA::getDataSetSize(meshVerts, dataFormat));
@@ -284,7 +292,21 @@ private:
 			}
 
 
+			//	vertex-remapping (Not using this currently)
+			int filePos = block.tellp();
+			filePos += (meshVerts * 4);
+			block.seekp(filePos);
 
+			//	FaceMorphs tbd...
+			DWORD morphCount;
+			block.read((char*)&morphCount, 4);
+
+			// Skip to Next
+			DWORD charBuf = 0;
+			while (ntohl(charBuf) != ENDM) {
+				block.read((char*)&charBuf, 4);}
+			filePos = block.tellp();
+			block.seekp(filePos + 4);
 
 		}
 
