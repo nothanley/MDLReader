@@ -129,9 +129,13 @@
   <ItemGroup>
     <ClCompile Include="GeneralRunner.cpp" />
     <ClCompile Include="MDLReader.cpp" />
+    <ClCompile Include="MdlSubObj.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BinaryUtils.h" />
+    <ClInclude Include="MBfD_RGBA.h" />
     <ClInclude Include="MDLReader.h" />
+    <ClInclude Include="MdlSubObj.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

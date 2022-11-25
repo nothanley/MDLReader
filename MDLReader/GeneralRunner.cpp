@@ -11,11 +11,6 @@ int main()
     MDLReader newFile = MDLReader();
     MDLReader secondFile = MDLReader();
 
-    newFile.openFile( "C:\\Users\\wauke\\Desktop\\baseModel_jsh.mdl" );
-    //MDLReader secondFile = MDLReader();
-    //secondFile.openFile("C:\\.GamingRoot");
-        
+    newFile.openFile( "C:\\Users\\wauke\\Desktop\\baseModel_jh.mdl" );
 
-    //std::cout << newFile.getNum() << endl;
-    //std::cout << secondFile.getNum() << endl;
 }
