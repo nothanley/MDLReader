@@ -11,7 +11,7 @@ int main()
     MDLReader newFile = MDLReader();
     MDLReader secondFile = MDLReader();
 
-    newFile.openFile( "C:\\Users\\wauke\\Desktop\\baseModel_j3sh.mdl" );
+    newFile.openFile( "C:\\Users\\wauke\\Desktop\\baseModel_jsh.mdl" );
     //MDLReader secondFile = MDLReader();
     //secondFile.openFile("C:\\.GamingRoot");
         
