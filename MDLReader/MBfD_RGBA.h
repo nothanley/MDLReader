@@ -19,6 +19,10 @@ public:
 		R8,
 	};
 
+	static std::vector<float> convertBinaryDataSet(char* data, int verts, std::string blockType) {
+
+	}
+
 	static std::vector<float> getData_R32_G32_B32(char* data, int verts, std::string blockType) {
 
 	}
@@ -27,15 +31,15 @@ public:
 
 	}
 
-	static std::vector<float> getData_R16_G16_B16_A16(char* data, int verts, string blockType) {
+	static std::vector<float> getData_R16_G16_B16_A16(char* data, int verts, std::string blockType) {
 
 	}
 
-	static std::vector<float> getData_R32_G32(char* data, int verts, string blockType) {
+	static std::vector<float> getData_R32_G32(char* data, int verts, std::string blockType) {
 
 	}
 
-	static std::vector<float> getData_R8(char* data, int verts, string blockType) {
+	static std::vector<float> getData_R8(char* data, int verts, std::string blockType) {
 
 	}
 
