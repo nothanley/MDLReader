@@ -228,10 +228,6 @@ private:
 
 		for (int i = 0; i < models; i++) {
 
-			if (i > 0) {
-				std::cout << i << endl;
-			}
-
 			int modelID;
 			int modelFlagA;
 			int modelFlagB;
