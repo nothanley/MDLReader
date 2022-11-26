@@ -16,10 +16,11 @@ class MDLReader {
 	std::filebuf* fileBuffer = new std::filebuf();
 	std::vector<string> stringTable = {};
 	std::vector<int> materialTable;
-	std::vector<MdlSubObj> subModels;
 	std::vector<float> mainRoot;
 
 public:
+
+	std::vector<MdlSubObj> subModels;
 
 	enum {
 		MDL = 0x4D444C21,
@@ -63,12 +64,12 @@ public:
 		processBlocks();
 	}
 
-	void getSubObjs() {
-
+	std::vector<MdlSubObj> getSubObjs() {
+		return subModels;
 	}
 
-	void getModelCount() {
-
+	int getModelCount() {
+		return modelCount;
 	}
 
 	void getMeshNames() {
@@ -237,6 +238,8 @@ private:
 			int modelDataSets;
 			string modelName;
 
+			MdlSubObj modelObject;
+
 			block.read((char*)&modelID, sizeof(DWORD));
 			block.read((char*)&modelFlagA, sizeof(DWORD));
 			block.read((char*)&modelFlagB, sizeof(SHORT));
@@ -248,7 +251,8 @@ private:
 
 
 			modelName = mainText[modelID];
-			std::cout << modelName << endl;
+			modelObject.setModelName(modelName);
+
 			//iter over current model's subdata
 			for (int k = 0; k < modelDataSets; k++) {
 				string dataProperty;
@@ -281,11 +285,12 @@ private:
 				std::vector<float> rawData 
 					= MBfD_RGBA::convertBinaryDataSet(dataBuffer, meshVerts,
 						dataType, dataFormat);
-				delete [] dataBuffer;
 
 				//do-something with data
 				block.seekp(filePos + MBfD_RGBA::getDataSetSize(meshVerts, dataFormat));
-				cout << dataProperty << endl;
+
+				modelObject.appendBinary(dataBuffer, rawData, dataProperty);
+				delete [] dataBuffer;
 			}
 
 
@@ -304,6 +309,10 @@ private:
 				block.read((char*)&charBuf, 4);}
 			filePos = block.tellp();
 			block.seekp(filePos + 4);
+
+			//append model
+			subModels.push_back(modelObject);
+			
 
 		}
 
@@ -366,6 +375,8 @@ private:
 			meshID = stringTable[materialTable[modelIndex]];
 			block.seekp(filePos + 10);
 
+			subModels[i].setFaces(triFaces);
+
 			int fileAlign = BinaryUtils::roundUp(block.tellp(),4);
 			block.seekp(fileAlign);
 
@@ -375,9 +386,6 @@ private:
 				block.read((char*)&charBuf, 4);
 			}
 
-
-			//do-something with data;
-			cout << "Gather LODS: " << meshID << endl;
 		}
 	}
 

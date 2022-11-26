@@ -129,7 +129,6 @@
   <ItemGroup>
     <ClCompile Include="GeneralRunner.cpp" />
     <ClCompile Include="MDLReader.cpp" />
-    <ClCompile Include="MdlSubObj.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BinaryUtils.h" />
