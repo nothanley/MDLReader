@@ -15,7 +15,7 @@ class MDLReader {
 	int boneCount;
 	std::filebuf* fileBuffer = new std::filebuf();
 	std::vector<string> stringTable = {};
-	std::vector<string> materialTable;
+	std::vector<int> materialTable;
 	std::vector<MdlSubObj> subModels;
 	std::vector<float> mainRoot;
 
@@ -213,7 +213,7 @@ private:
 			int mtlIndex;
 
 			block.read((char*)&mtlIndex, sizeof(DWORD));
-			materialTable.push_back(stringTable[mtlIndex]);
+			materialTable.push_back(mtlIndex);
 		}
 	}
 
@@ -223,6 +223,7 @@ private:
 		std::iostream block(fileBuffer);
 		block.seekp(blockPos);
 		block.read((char*)&models, sizeof(DWORD));
+
 		// for some reason we have to redeclare to a dummy stringTable
 		std::vector<string> mainText = this->stringTable; 
 
@@ -313,7 +314,71 @@ private:
 	void readLODs(const int blockPos, const int blockSize) {
 
 		cout << "readLODs " << sizeof(blockPos) << endl;
+		int subLods;
+		std::iostream block(fileBuffer);
+		block.seekp(blockPos);
+		block.read((char*)&subLods, sizeof(DWORD));
 
+		for (int i = 0; i < this->modelCount; i++) {
+			DWORD lodCount;
+			SHORT lodIndex;
+			DWORD faceCount;
+			std::vector<int> triFaces;
+			
+
+			block.read((char*)&lodCount, sizeof(DWORD));
+			block.read((char*)&lodIndex, 2);
+			block.read((char*)&faceCount, sizeof(DWORD));
+
+			//do-get-verts func here
+
+			if ((faceCount / 3) > 65535) {
+				for (int j = 0; j < int(faceCount / 3); j++) {
+					int fx, fy, fz;
+					block.read((char*)&fx,4);
+					block.read((char*)&fy,4);
+					block.read((char*)&fz,4);
+
+					triFaces.push_back(fx);
+					triFaces.push_back(fy);
+					triFaces.push_back(fz);
+				}
+			}
+			else {
+				for (int j = 0; j < int(faceCount / 3); j++) {
+					int fx, fy, fz;
+					block.read((char*)&fx, 2);
+					block.read((char*)&fy, 2);
+					block.read((char*)&fz, 2);
+
+					triFaces.push_back(fx);
+					triFaces.push_back(fy);
+					triFaces.push_back(fz);
+				}
+			}
+
+			DWORD modelIndex;
+			string meshID;
+
+			int filePos = block.tellp();
+			block.seekp(filePos + 6);
+			block.read((char*)&modelIndex, 4);
+			meshID = stringTable[materialTable[modelIndex]];
+			block.seekp(filePos + 10);
+
+			int fileAlign = BinaryUtils::roundUp(block.tellp(),4);
+			block.seekp(fileAlign);
+
+			// Skip to Next
+			DWORD charBuf = 0;
+			while (ntohl(charBuf) != ENDM) {
+				block.read((char*)&charBuf, 4);
+			}
+
+
+			//do-something with data;
+			cout << "Gather LODS: " << meshID << endl;
+		}
 	}
 
 	void validateMDL() {

@@ -7,7 +7,6 @@ int main()
 {
 
 
-
     MDLReader newFile = MDLReader();
     MDLReader secondFile = MDLReader();
 
