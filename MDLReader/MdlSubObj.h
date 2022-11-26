@@ -27,7 +27,7 @@ class MdlSubObj
 		int colorCount = 0;
 		bool isSkinned = false;
 		bool hasMorphs = false;
-		std::string objectName;
+		std::string name;
 
 		std::vector<float> position;
 		std::vector<float> normals;
@@ -134,8 +134,8 @@ class MdlSubObj
 			this->vcolors.push_back(rawData);
 			this->colorCount++;
 		}
-		void setModelName(std::string name) {
-			this->objectName = name;
+		void setModelName(std::string meshName) {
+			this->name = meshName;
 		}
 
 };

@@ -1,11 +1,15 @@
-#pragma once
+
 #include <fstream>
 #include <windows.h> 
 #include <winsock.h>
 #include "MdlSubObj.h"
 #include "MBfD_RGBA.h"
+#include <glm/glm.hpp>
+#include <glm/gtx/euler_angles.hpp>
 #pragma comment(lib, "Ws2_32.lib")
+#pragma once
 using namespace std;
+using namespace glm;
 
 class MDLReader {
 
@@ -17,6 +21,10 @@ class MDLReader {
 	std::vector<string> stringTable = {};
 	std::vector<int> materialTable;
 	std::vector<float> mainRoot;
+	std::vector<glm::mat4x4> matrixPallete;
+	double Pi = 3.14159265358979323846264338327950288;
+	double toDegrees = 180 / Pi;
+	double toRadians = Pi / 180;
 
 public:
 
@@ -72,20 +80,23 @@ public:
 		return modelCount;
 	}
 
-	void getMeshNames() {
-
+	std::vector<std::string> getMeshNames() {
+		std::vector<std::string> meshNames;
+		for (int i = 0; i < modelCount; i++)
+			meshNames.push_back(subModels[i].name);
+		return meshNames;
 	}
 
-	void getArmature() {
-
+	std::vector<glm::mat4x4> getArmature() {
+		return matrixPallete;
 	}
 
-	void getBoneCount() {
-
+	int getBoneCount() {
+		return matrixPallete.size();
 	}
 
 	bool isSkinMesh() {
-
+		return (matrixPallete.size() > 0);
 	}
 
 	bool hasFaceMorphs() {
@@ -186,17 +197,27 @@ private:
 			short boneIndex, parentIndex;
 			float matVecX , matVecY , matVecZ;
 			float posVecX , posVecY , posVecZ;
+			glm::mat3x3 rotMatrix;
 
 			block.read((char*)&boneIndex, sizeof(short));
 			block.read((char*)&parentIndex, sizeof(short));
 
 			//do something with this data
-			block.read((char*)&matVecX, sizeof(DWORD));
-			block.read((char*)&matVecY, sizeof(DWORD));
-			block.read((char*)&matVecZ, sizeof(DWORD));
 			block.read((char*)&posVecX, sizeof(DWORD));
 			block.read((char*)&posVecY, sizeof(DWORD));
 			block.read((char*)&posVecZ, sizeof(DWORD));
+			block.read((char*)&matVecX, sizeof(DWORD));
+			block.read((char*)&matVecY, sizeof(DWORD));
+			block.read((char*)&matVecZ, sizeof(DWORD));
+
+			//grab Mat
+			boneID = stringTable[boneIndex];
+			glm::mat4x4 newMat = glm::eulerAngleXYZ(matVecX, matVecY, matVecZ);
+			newMat[3][0] = posVecX; newMat[3][1] = posVecY; newMat[3][2] = posVecZ;
+
+
+			//cache-matrix
+			matrixPallete.push_back(newMat);
 		}
 
 		this->boneCount = boneCount;
