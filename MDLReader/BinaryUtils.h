@@ -47,4 +47,10 @@ public:
         return converted_str;
     }
 
+    static std::wstring string_to_wchar( std::string narrow_string) {
+        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+        std::wstring wide_string = converter.from_bytes(narrow_string);
+        return wide_string;
+    }
+
 };
