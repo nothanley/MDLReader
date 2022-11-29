@@ -47,10 +47,12 @@ public:
         return converted_str;
     }
 
-    static std::wstring string_to_wchar( std::string narrow_string) {
-        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-        std::wstring wide_string = converter.from_bytes(narrow_string);
-        return wide_string;
+    static wchar_t* string_to_wchar( std::string narrow_string) {
+
+        int wchars_num = MultiByteToWideChar(CP_UTF8, 0, narrow_string.c_str(), -1, NULL, 0);
+        wchar_t* wStr = new wchar_t[wchars_num];
+        MultiByteToWideChar(CP_UTF8, 0, narrow_string.c_str(), -1, wStr, (wchars_num));
+        return wStr;
     }
 
 };

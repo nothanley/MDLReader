@@ -73,11 +73,11 @@ class MdlSubObj
 		}
 
 		//obj getters;
-		static void getVertices() {
-
+		std::vector<float> getVertices() {
+			return this->position;
 		}
-		static void getNormals() {
-
+		std::vector<float> getNormals() {
+			return this->normals;
 		}
 		static void getBinormals() {
 
@@ -91,8 +91,8 @@ class MdlSubObj
 		static void getBlendIndices() {
 
 		}
-		static void getTriFaces() {
-
+		std::vector<int> getTriFaces() {
+			return this->triFaces;
 		}
 		static void getUVMaps() {
 

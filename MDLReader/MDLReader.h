@@ -359,12 +359,14 @@ private:
 			block.read((char*)&lodCount, sizeof(DWORD));
 			block.read((char*)&lodIndex, 2);
 			block.read((char*)&faceCount, sizeof(DWORD));
+			cout << block.tellp() << endl;
 
 			//do-get-verts func here
+			int modelVerts = subModels[i].verticeCount;
 
-			if ((faceCount / 3) > 65535) {
+			if ( modelVerts > 65535) {
 				for (int j = 0; j < int(faceCount / 3); j++) {
-					int fx, fy, fz;
+					uint32_t fx, fy, fz;
 					block.read((char*)&fx,4);
 					block.read((char*)&fy,4);
 					block.read((char*)&fz,4);
@@ -376,7 +378,7 @@ private:
 			}
 			else {
 				for (int j = 0; j < int(faceCount / 3); j++) {
-					int fx, fy, fz;
+					uint16_t fx, fy, fz;
 					block.read((char*)&fx, 2);
 					block.read((char*)&fy, 2);
 					block.read((char*)&fz, 2);
