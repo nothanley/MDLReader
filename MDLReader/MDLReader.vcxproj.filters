@@ -899,6 +899,9 @@
     <ClInclude Include="3rdParty\glm\vector_relational.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MDLBoneObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="3rdParty\glm\detail\func_common.inl">

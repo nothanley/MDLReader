@@ -6,6 +6,7 @@
 #include "MBfD_RGBA.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/euler_angles.hpp>
+#include "MDLBoneObj.h"
 #pragma comment(lib, "Ws2_32.lib")
 #pragma once
 using namespace std;
@@ -21,7 +22,7 @@ class MDLReader {
 	std::vector<string> stringTable = {};
 	std::vector<int> materialTable;
 	std::vector<float> mainRoot;
-	std::vector<glm::mat4x4> matrixPallete;
+	std::vector<MDLBoneOBJ> bones;
 	double Pi = 3.14159265358979323846264338327950288;
 	double toDegrees = 180 / Pi;
 	double toRadians = Pi / 180;
@@ -87,16 +88,16 @@ public:
 		return meshNames;
 	}
 
-	std::vector<glm::mat4x4> getArmature() {
-		return matrixPallete;
+	std::vector<MDLBoneOBJ> getArmature() {
+		return bones;
 	}
 
 	int getBoneCount() {
-		return matrixPallete.size();
+		return bones.size();
 	}
 
 	bool isSkinMesh() {
-		return (matrixPallete.size() > 0);
+		return (bones.size() > 0);
 	}
 
 	bool hasFaceMorphs() {
@@ -212,16 +213,18 @@ private:
 
 			//grab Mat
 			boneID = stringTable[boneIndex];
-			glm::mat4x4 newMat = glm::eulerAngleXYZ(matVecX, matVecY, matVecZ);
-			newMat[3][0] = posVecX; newMat[3][1] = posVecY; newMat[3][2] = posVecZ;
 
+			glm::mat4x4 newMat = MDLBoneOBJ::euler2rot(matVecX, matVecY, matVecZ);
+			newMat[0][3] = 0.0f; newMat[1][3] = 0.0f; newMat[2][3] = 0.0f; newMat[3][3] = 1.0f;
+			newMat[3][0] = posVecX; newMat[3][1] = posVecY; newMat[3][2] = posVecZ; newMat[3][3] = 1.0f;
 
-			//cache-matrix
-			matrixPallete.push_back(newMat);
+			//store boneObj
+			MDLBoneOBJ newBone = MDLBoneOBJ(i, boneID, newMat);
+			if (parentIndex != -1) { newBone.setParent(parentIndex); };
+			bones.push_back(newBone);
 		}
 
 		this->boneCount = boneCount;
-
 	}
 
 	void readMTL(const int blockPos, const int blockSize) {
@@ -359,7 +362,6 @@ private:
 			block.read((char*)&lodCount, sizeof(DWORD));
 			block.read((char*)&lodIndex, 2);
 			block.read((char*)&faceCount, sizeof(DWORD));
-			cout << block.tellp() << endl;
 
 			//do-get-verts func here
 			int modelVerts = subModels[i].verticeCount;
