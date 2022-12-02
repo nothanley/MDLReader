@@ -4,9 +4,6 @@
 #include <sstream>
 #include <locale>
 #include <codecvt>
-#include "windows.h"
-#include <algorithm>
-#include <cctype>
 
 class BinaryUtils {
 
@@ -59,22 +56,5 @@ public:
     }
 
   
-    static std::string ReplaceAll(std::string str, const std::string& from, const std::string& to) {
-        size_t start_pos = 0;
-        while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
-            str.replace(start_pos, from.length(), to);
-            start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
-        }
-        return str;
-    }
 
-    static std::string str_tolower(std::string s) {
-        std::transform(s.begin(), s.end(), s.begin(),
-            // static_cast<int(*)(int)>(std::tolower)         // wrong
-            // [](int c){ return std::tolower(c); }           // wrong
-            // [](char c){ return std::tolower(c); }          // wrong
-            [](unsigned char c) { return tolower(c); } // correct
-        );
-        return s;
-    }
 };
