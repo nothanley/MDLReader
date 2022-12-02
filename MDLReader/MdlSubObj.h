@@ -28,6 +28,7 @@ class MdlSubObj
 		bool isSkinned = false;
 		bool hasMorphs = false;
 		std::string name;
+		std::string meshName;
 
 		std::vector<float> position;
 		std::vector<float> normals;
@@ -38,6 +39,7 @@ class MdlSubObj
 		std::vector<int> triFaces;
 		std::vector< std::vector<float> > uvmap;
 		std::vector< std::vector<float> > vcolors;
+		std::vector<int> weightedBones;
 
 		//convert-binary
 		void appendBinary(char* dataBuffer, std::vector<float> rawData , std::string dataProperty) {
@@ -94,11 +96,17 @@ class MdlSubObj
 		std::vector<int> getTriFaces() {
 			return this->triFaces;
 		}
-		static void getUVMaps() {
-
+		std::vector< std::vector<float> > getUVMaps() {
+			return this->uvmap;
 		}
-		static void getVColorSets() {
-
+		std::vector<float> getUVMap( int i ) {
+			return this->uvmap[i];
+		}
+		std::vector< std::vector<float> > getVColorSets() {
+			return this->vcolors;
+		}
+		std::vector<float> getVColorSet( int i ) {
+			return this->vcolors[i];
 		}
 
 		// obj setters;
@@ -125,6 +133,7 @@ class MdlSubObj
 		}
 		void setBlendIndices(std::vector<float> rawData) {
 			this->blendIndices = rawData;
+			this->setWeightedBones();
 		}
 		void addUVMap(std::vector<float> rawData) {
 			this->uvmap.push_back(rawData);
@@ -134,8 +143,29 @@ class MdlSubObj
 			this->vcolors.push_back(rawData);
 			this->colorCount++;
 		}
-		void setModelName(std::string meshName) {
-			this->name = meshName;
+		void setModelName(std::string modelName) {
+			this->name = modelName;
+		}
+		void setMeshName(std::string mshName) {
+			this->meshName = mshName;
+		}
+
+	private:
+		void setWeightedBones() {
+
+			//collect unique indices
+			for (int i = 0; i < blendIndices.size(); i++) {
+
+				float blendIndex = blendIndices[i];	// use int...
+
+				//if exists
+				if (std::find(weightedBones.begin(), weightedBones.end(), blendIndex) == weightedBones.end()) {
+					weightedBones.push_back(blendIndex);
+				}
+
+			}
+
+			//sort???
 		}
 
 };

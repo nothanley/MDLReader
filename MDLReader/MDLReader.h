@@ -22,13 +22,12 @@ class MDLReader {
 	std::vector<string> stringTable = {};
 	std::vector<int> materialTable;
 	std::vector<float> mainRoot;
-	std::vector<MDLBoneOBJ> bones;
 	double Pi = 3.14159265358979323846264338327950288;
 	double toDegrees = 180 / Pi;
 	double toRadians = Pi / 180;
 
 public:
-
+	std::vector<MDLBoneOBJ> bones;
 	std::vector<MdlSubObj> subModels;
 
 	enum {
@@ -39,7 +38,7 @@ public:
 		MTL = 0x4D544C21,
 		MBfD = 0x4D426644,
 		LODs = 0x4C4F4473,
-		END = 0x454E4421,
+		ENDP = 0x454E4421,
 		ENDM = 0x454E444D,
 	};
 	
@@ -400,6 +399,7 @@ private:
 			meshID = stringTable[materialTable[modelIndex]];
 			block.seekp(filePos + 10);
 
+			subModels[i].setMeshName(meshID);
 			subModels[i].setFaces(triFaces);
 
 			int fileAlign = BinaryUtils::roundUp(block.tellp(),4);
