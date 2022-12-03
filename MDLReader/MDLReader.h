@@ -357,16 +357,16 @@ private:
 
 		for (int k = 0; k < subLods; k++) {
 
-			cout << "POS LODS " << k << " @: " << block.tellp() << endl;
+			//cout << "POS LODS " << k << " @: " << block.tellp() << endl;
+			DWORD lodSets;
+			block.read((char*)&lodSets, sizeof(DWORD));
 
-			for (int i = 0; i < this->modelCount; i++) {
-				DWORD lodCount;
+			for (int i = 0; i < lodSets; i++) {
+	
 				SHORT lodIndex;
 				DWORD faceCount;
 				std::vector<int> triFaces;
 
-
-				block.read((char*)&lodCount, sizeof(DWORD));
 				block.read((char*)&lodIndex, 2);
 				block.read((char*)&faceCount, sizeof(DWORD));
 				int modelVerts = subModels[i].verticeCount;
@@ -423,15 +423,11 @@ private:
 				}
 
 				// Skip to Next
-				DWORD charBuf = 0;
-				while (ntohl(charBuf) != ENDM) {
-					block.read((char*)&charBuf, 4);
-				}
+				uint64_t endBuffer;
+				block.read((char*)&endBuffer, 8);
 
 			}
 
-			// Skip END
-			block.seekp(int(block.tellp()) + 4);
 
 		}
 	}

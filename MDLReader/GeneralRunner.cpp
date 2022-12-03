@@ -9,7 +9,7 @@ int main()
     MDLReader newFile = MDLReader();
     MDLReader secondFile = MDLReader();
 
-    newFile.openFile( "C:\\Users\\wauke\\Desktop\\Turnbuckle\\basemodel_jh.mdl" );
+    newFile.openFile( "C:\\Users\\wauke\\Desktop\\Turnbuckle\\2k22Backstage.mdl" );
 
     cout << "\n\n";
     int mdlModels = newFile.getModelCount();
