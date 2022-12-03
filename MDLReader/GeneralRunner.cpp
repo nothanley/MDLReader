@@ -9,13 +9,13 @@ int main()
     MDLReader newFile = MDLReader();
     MDLReader secondFile = MDLReader();
 
-    newFile.openFile( "C:\\Users\\wauke\\Desktop\\basemodel_jh.mdl" );
+    newFile.openFile( "C:\\Users\\wauke\\Desktop\\Turnbuckle\\basemodel_jh.mdl" );
 
     cout << "\n\n";
     int mdlModels = newFile.getModelCount();
     for (int i = 0; i < newFile.getModelCount(); i++) {
         MdlSubObj mesh = newFile.subModels[i];
-        cout << mesh.name << " : Vertices=" << mesh.verticeCount << " Faces=" << mesh.faceCount << endl;
+        cout << mesh.name << " : Alias=" << mesh.meshName << " Vertices = " << mesh.verticeCount << " Faces = " << mesh.faceCount << endl;
     }
 
     cout << "\n\n";

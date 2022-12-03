@@ -351,65 +351,87 @@ private:
 		block.seekp(blockPos);
 		block.read((char*)&subLods, sizeof(DWORD));
 
-		for (int i = 0; i < this->modelCount; i++) {
-			DWORD lodCount;
-			SHORT lodIndex;
-			DWORD faceCount;
-			std::vector<int> triFaces;
-			
 
-			block.read((char*)&lodCount, sizeof(DWORD));
-			block.read((char*)&lodIndex, 2);
-			block.read((char*)&faceCount, sizeof(DWORD));
+		cout << "subLods " << subLods << endl;
+		subLods =  /* We will only collect the highest LODs */ 1;
 
-			//do-get-verts func here
-			int modelVerts = subModels[i].verticeCount;
+		for (int k = 0; k < subLods; k++) {
 
-			if ( modelVerts > 65535) {
-				for (int j = 0; j < int(faceCount / 3); j++) {
-					uint32_t fx, fy, fz;
-					block.read((char*)&fx,4);
-					block.read((char*)&fy,4);
-					block.read((char*)&fz,4);
+			cout << "POS LODS " << k << " @: " << block.tellp() << endl;
 
-					triFaces.push_back(fx);
-					triFaces.push_back(fy);
-					triFaces.push_back(fz);
+			for (int i = 0; i < this->modelCount; i++) {
+				DWORD lodCount;
+				SHORT lodIndex;
+				DWORD faceCount;
+				std::vector<int> triFaces;
+
+
+				block.read((char*)&lodCount, sizeof(DWORD));
+				block.read((char*)&lodIndex, 2);
+				block.read((char*)&faceCount, sizeof(DWORD));
+				int modelVerts = subModels[i].verticeCount;
+
+				if (modelVerts > 65535) {
+					for (int j = 0; j < int(faceCount / 3); j++) {
+						uint32_t fx, fy, fz;
+						block.read((char*)&fx, 4);
+						block.read((char*)&fy, 4);
+						block.read((char*)&fz, 4);
+
+						triFaces.push_back(fx);
+						triFaces.push_back(fy);
+						triFaces.push_back(fz);
+					}
 				}
-			}
-			else {
-				for (int j = 0; j < int(faceCount / 3); j++) {
-					uint16_t fx, fy, fz;
-					block.read((char*)&fx, 2);
-					block.read((char*)&fy, 2);
-					block.read((char*)&fz, 2);
+				else {
+					for (int j = 0; j < int(faceCount / 3); j++) {
+						uint16_t fx, fy, fz;
+						block.read((char*)&fx, 2);
+						block.read((char*)&fy, 2);
+						block.read((char*)&fz, 2);
 
-					triFaces.push_back(fx);
-					triFaces.push_back(fy);
-					triFaces.push_back(fz);
+						triFaces.push_back(fx);
+						triFaces.push_back(fy);
+						triFaces.push_back(fz);
+					}
 				}
+
+
+				//Assign mats
+				string meshID;
+				DWORD lodEntries;
+				block.seekp(BinaryUtils::roundUp(block.tellp(), 4));
+				block.read((char*)&lodEntries, 4);
+
+				/* Seperate faces can have their own material */
+				for (int p = 0; p < lodEntries; p++) {
+					DWORD mtlIndex;
+					DWORD affectedFaceIndexFirst;
+					DWORD affectedFaceIndexSize;
+
+					block.read((char*)&mtlIndex, 4);
+					block.read((char*)&affectedFaceIndexFirst, 4);
+					block.read((char*)&affectedFaceIndexSize, 4);
+
+					meshID = stringTable[materialTable[mtlIndex]];
+				}
+
+				/* Assign only last mtl entry */
+				if (k == 0) {
+					subModels[i].setFaces(triFaces);
+					subModels[i].setMeshName(meshID);
+				}
+
+				// Skip to Next
+				DWORD charBuf = 0;
+				while (ntohl(charBuf) != ENDM) {
+					block.read((char*)&charBuf, 4);
+				}
+
 			}
 
-			DWORD modelIndex;
-			string meshID;
-
-			int filePos = block.tellp();
-			block.seekp(filePos + 6);
-			block.read((char*)&modelIndex, 4);
-			meshID = stringTable[materialTable[modelIndex]];
-			block.seekp(filePos + 10);
-
-			subModels[i].setMeshName(meshID);
-			subModels[i].setFaces(triFaces);
-
-			int fileAlign = BinaryUtils::roundUp(block.tellp(),4);
-			block.seekp(fileAlign);
-
-			// Skip to Next
-			DWORD charBuf = 0;
-			while (ntohl(charBuf) != ENDM) {
-				block.read((char*)&charBuf, 4);
-			}
+			// Skip END
+			block.seekp(int(block.tellp()) + 4);
 
 		}
 	}
