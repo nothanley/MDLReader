@@ -265,8 +265,23 @@ private:
 			block.read((char*)&modelFlagA, sizeof(DWORD));
 			block.read((char*)&modelFlagB, sizeof(SHORT));
 
-			//disregard block hash
-			block.seekp(int(block.tellp()) + 28);
+			//Axis Aligned Bounding Box
+			DWORD nullAxisB, minXB, minYB, minZB, maxXB, maxYB, maxZB;
+			float minX, minY, minZ, maxX, maxY, maxZ;
+			block.read((char*)&nullAxisB, sizeof(DWORD));
+			block.read((char*)&minXB, sizeof(DWORD)); block.read((char*)&minYB, sizeof(DWORD)); block.read((char*)&minZB, sizeof(DWORD));
+			block.read((char*)&maxXB, sizeof(DWORD)); block.read((char*)&maxYB, sizeof(DWORD)); block.read((char*)&maxZB, sizeof(DWORD));
+			ntohl(minXB); ntohl(minYB); ntohl(minZB); ntohl(maxXB); ntohl(maxYB); ntohl(maxZB);
+			minX = *(float*)&(minXB); minY = *(float*)&(minYB); minZ = *(float*)&(minZB);
+			maxX = *(float*)&(maxXB); maxY = *(float*)&(maxYB); maxZ = *(float*)&(maxZB);
+
+			cout << minX;
+
+			float cX = (minX + maxX) / 2, cY = (minY + maxY) / 2, cZ = (minZ + maxZ) / 2;
+			float hw = (maxX - minX) / 2, hh = (maxY - minY) / 2, hd = (maxZ - minZ) / 2;
+			std::vector<float> corners{ cX - hw, cY - hh, cZ - hd, cX + hw, cY - hh, cZ - hd, cX + hw, cY + hh, cZ - hd, cX - hw, cY + hh, cZ - hd };
+
+
 			block.read((char*)&meshVerts, sizeof(DWORD));
 			block.read((char*)&modelDataSets, sizeof(DWORD));
 
