@@ -346,9 +346,6 @@ private:
 			}
 
 			//New Skin Buffer
-			if (modelObject.name == "M_Head") {
-				cout << "Hi";
-			}
 			SHORT maxJointIndex; block.read((char*)&maxJointIndex, 2);
 			SHORT skinInfluence; block.read((char*)&skinInfluence, 2);
 			if (skinInfluence!=0){
