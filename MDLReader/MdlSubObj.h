@@ -40,6 +40,7 @@ class MdlSubObj
 		std::vector< std::vector<float> > uvmap;
 		std::vector< std::vector<float> > vcolors;
 		std::vector<int> weightedBones;
+		int skinInfluence;
 
 		//convert-binary
 		void appendBinary(char* dataBuffer, std::vector<float> rawData , std::string dataProperty) {
@@ -113,6 +114,9 @@ class MdlSubObj
 		void setVertices(std::vector<float> rawData) {
 			this->position = rawData;
 			this->verticeCount = (rawData.size() / 3);
+		}
+		void setSkinInfluence( int numWeights ) {
+			this->skinInfluence = numWeights;
 		}
 		void setFaces(std::vector<int> rawData) {
 			this->triFaces = rawData;
